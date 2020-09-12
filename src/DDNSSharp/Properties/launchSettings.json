@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DDNSSharp": {
+      "commandName": "Project",
+      "commandLineArgs": "provider set aliyun --id 666 --secret abc"
+    }
+  }
+}
