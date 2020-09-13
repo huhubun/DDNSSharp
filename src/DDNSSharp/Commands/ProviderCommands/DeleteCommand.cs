@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace DDNSSharp.Commands.ProviderCommands
 {
     [Command(AllowArgumentSeparator = true, UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.CollectAndContinue)]
-    class SetCommand
+    class DeleteCommand
     {
         [Argument(0, Description = "Provider name")]
         [Required]
@@ -22,17 +22,11 @@ namespace DDNSSharp.Commands.ProviderCommands
 
             var provider = ProviderHelper.GetInstanceByName(Name, app);
 
-            Console.WriteLine($"Now start to set up '{provider.Name}' provider.");
+            Console.WriteLine($"Now start to delete the configuration of '{provider.Name}' provider.");
 
-            // 加载 Provider 的 Options
-            provider.SetOptionsToApp();
+            provider.DeleteOptions();
 
-            // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
-            app.Parse(app.RemainingArguments.ToArray());
-
-            provider.SaveOptions();
-
-            Console.WriteLine("Saved.");
+            Console.WriteLine("Deleted.");
 
             return 0;
         }

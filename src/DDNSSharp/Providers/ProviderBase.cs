@@ -12,6 +12,7 @@ namespace DDNSSharp.Providers
     abstract class ProviderBase
     {
         private const string PROVIDER_CONFIG_FILE_NAME = "provider.json";
+        private bool _isDeleteCommand = false;
 
         public string Name => (Attribute.GetCustomAttribute(this.GetType(), typeof(ProviderAttribute)) as ProviderAttribute)?.Name;
 
@@ -27,8 +28,13 @@ namespace DDNSSharp.Providers
         public virtual void SaveOptions()
         {
             SaveConfigFile();
+        }
 
-            Console.WriteLine("save successed!");
+        public virtual void DeleteOptions()
+        {
+            _isDeleteCommand = true;
+
+            SaveConfigFile();
         }
 
         /// <summary>
@@ -87,6 +93,11 @@ namespace DDNSSharp.Providers
         /// <param name="writer"></param>
         private void SaveCurrentProvider(Utf8JsonWriter writer)
         {
+            if (_isDeleteCommand)
+            {
+                return;
+            }
+
             writer.WritePropertyName(Name);
             writer.WriteStartObject();
 

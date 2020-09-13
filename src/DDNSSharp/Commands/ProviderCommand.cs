@@ -8,7 +8,7 @@ namespace DDNSSharp.Commands
 {
     [Subcommand(
         typeof(SetCommand),
-        typeof(ClearCommand)
+        typeof(ProviderCommands.DeleteCommand)
     )]
     class ProviderCommand
     {
