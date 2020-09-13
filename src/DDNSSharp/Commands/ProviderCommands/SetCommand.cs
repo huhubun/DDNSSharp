@@ -1,11 +1,7 @@
 ﻿using DDNSSharp.Providers;
-using DDNSSharp.Providers.Aliyun;
 using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 
 namespace DDNSSharp.Commands.ProviderCommands
 {
@@ -24,23 +20,15 @@ namespace DDNSSharp.Commands.ProviderCommands
                 return 1;
             }
 
-            Console.WriteLine($"input name is {Name}");
-
+            Console.WriteLine($"Now start to set up '{Name}' provider.");
 
             var provider = ProviderHelper.GetInstanceByName(Name, app);
 
-            Console.WriteLine(provider);
+            // 加载 Provider 的 Options
+            provider.SetOptionsToApp();
 
-            provider.SetOptions();
-
+            // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
             app.Parse(app.RemainingArguments.ToArray());
-
-            //if (provider is AliyunProvider)
-            //{
-            //    var aliyun = provider as AliyunProvider;
-
-            //    Console.WriteLine($"id = {aliyun.Id?.Value()}, secret = {aliyun.Secret?.Value()}");
-            //}
 
             provider.SaveOptions();
 

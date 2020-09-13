@@ -1,9 +1,5 @@
 ﻿using DDNSSharp.Attributes;
 using McMaster.Extensions.CommandLineUtils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DDNSSharp.Providers.Aliyun
 {
@@ -21,12 +17,10 @@ namespace DDNSSharp.Providers.Aliyun
 
         public CommandOption<string> Secret { get; private set; }
 
-        public override void SetOptions()
+        public override void SetOptionsToApp()
         {
             Id = _app.Option<string>("--id", "aliyun accessKeyId", CommandOptionType.SingleValue);
             Secret = _app.Option<string>("--secret", "aliyun accessSecret", CommandOptionType.SingleValue);
         }
-
-
     }
 }
