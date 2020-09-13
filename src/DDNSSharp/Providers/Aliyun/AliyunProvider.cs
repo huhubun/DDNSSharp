@@ -2,6 +2,7 @@
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DDNSSharp.Providers.Aliyun
@@ -9,19 +10,23 @@ namespace DDNSSharp.Providers.Aliyun
     [Provider(Name = "Aliyun")]
     class AliyunProvider : ProviderBase
     {
-        public override IEnumerable<CommandOption> GetOptions()
-        {
-            yield return new CommandOption("id", CommandOptionType.SingleValue)
-            {
-                Description = "aliyun accessKeyId",
-                LongName = "access key id"
-            };
+        private CommandLineApplication _app;
 
-            yield return new CommandOption("secret", CommandOptionType.SingleValue)
-            {
-                Description = "aliyun accessSecret",
-                LongName = "access secret"
-            };
+        public AliyunProvider(CommandLineApplication app)
+        {
+            _app = app;
         }
+
+        public CommandOption<string> Id { get; private set; }
+
+        public CommandOption<string> Secret { get; private set; }
+
+        public override void SetOptions()
+        {
+            Id = _app.Option<string>("--id", "aliyun accessKeyId", CommandOptionType.SingleValue);
+            Secret = _app.Option<string>("--secret", "aliyun accessSecret", CommandOptionType.SingleValue);
+        }
+
+
     }
 }

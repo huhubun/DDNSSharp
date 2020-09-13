@@ -1,12 +1,17 @@
-﻿using McMaster.Extensions.CommandLineUtils;
+﻿using DDNSSharp.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DDNSSharp.Providers
 {
     abstract class ProviderBase
     {
-        public abstract IEnumerable<CommandOption> GetOptions();
+        public string Name => (Attribute.GetCustomAttribute(this.GetType(), typeof(ProviderAttribute)) as ProviderAttribute)?.Name;
+
+        public abstract void SetOptions();
+
+        public void SaveOptions()
+        {
+            Console.WriteLine("save successed!");
+        }
     }
 }

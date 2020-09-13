@@ -1,4 +1,5 @@
 ﻿using DDNSSharp.Attributes;
+using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DDNSSharp.Providers
 {
     static class ProviderHelper
     {
-        public static ProviderBase GetByName(string providerName)
+        public static ProviderBase GetInstanceByName(string providerName, CommandLineApplication app)
         {
             if (providerName == null)
             {
@@ -26,7 +27,7 @@ namespace DDNSSharp.Providers
 
                 if (String.Equals(providerName, providerAttribute.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return Activator.CreateInstance(type) as ProviderBase;
+                    return Activator.CreateInstance(type, app) as ProviderBase;
                 }
             }
 
