@@ -1,5 +1,4 @@
-﻿using DDNSSharp.Providers;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,29 +11,29 @@ namespace DDNSSharp.Commands.ProviderCommands
         [Required]
         public string Name { get; }
 
-        int OnExecute(CommandLineApplication app)
-        {
-            if (String.IsNullOrEmpty(Name))
-            {
-                app.ShowHelp();
-                return 1;
-            }
+        //int OnExecute(CommandLineApplication app)
+        //{
+        //    if (String.IsNullOrEmpty(Name))
+        //    {
+        //        app.ShowHelp();
+        //        return 1;
+        //    }
 
-            var provider = ProviderHelper.GetInstanceByName(Name, app);
+        //    var provider = ProviderHelper.GetInstanceByName(Name, app);
 
-            Console.WriteLine($"Now start to set up '{provider.Name}' provider.");
+        //    Console.WriteLine($"Now start to set up '{provider.Name}' provider.");
 
-            // 加载 Provider 的 Options
-            provider.SetOptionsToApp();
+        //    // 加载 Provider 的 Options
+        //    provider.SetOptionsToApp();
 
-            // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
-            app.Parse(app.RemainingArguments.ToArray());
+        //    // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
+        //    app.Parse(app.RemainingArguments.ToArray());
 
-            provider.SaveOptions();
+        //    provider.SaveOptions();
 
-            Console.WriteLine("Saved.");
+        //    Console.WriteLine("Saved.");
 
-            return 0;
-        }
+        //    return 0;
+        //}
     }
 }

@@ -1,4 +1,5 @@
-﻿using DDNSSharp.Attributes;
+﻿using DDNSSharp.Core.Providers;
+using DDNSSharp.Core.Providers.Attributes;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace DDNSSharp.Providers.Cloudflare

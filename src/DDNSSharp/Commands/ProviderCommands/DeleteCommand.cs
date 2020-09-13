@@ -1,5 +1,4 @@
-﻿using DDNSSharp.Providers;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,23 +11,23 @@ namespace DDNSSharp.Commands.ProviderCommands
         [Required]
         public string Name { get; }
 
-        int OnExecute(CommandLineApplication app)
-        {
-            if (String.IsNullOrEmpty(Name))
-            {
-                app.ShowHelp();
-                return 1;
-            }
+        // int OnExecute(CommandLineApplication app)
+        //{
+        //    if (String.IsNullOrEmpty(Name))
+        //    {
+        //        app.ShowHelp();
+        //        return 1;
+        //    }
 
-            var provider = ProviderHelper.GetInstanceByName(Name, app);
+        //    var provider = ProviderHelper.GetInstanceByName(Name, app);
 
-            Console.WriteLine($"Now start to delete the configuration of '{provider.Name}' provider.");
+        //    Console.WriteLine($"Now start to delete the configuration of '{provider.Name}' provider.");
 
-            provider.DeleteOptions();
+        //    provider.DeleteOptions();
 
-            Console.WriteLine("Deleted.");
+        //    Console.WriteLine("Deleted.");
 
-            return 0;
-        }
+        //    return 0;
+        //}
     }
 }

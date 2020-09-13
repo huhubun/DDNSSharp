@@ -1,4 +1,4 @@
-﻿using DDNSSharp.Attributes;
+﻿using DDNSSharp.Core.Providers.Attributes;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace DDNSSharp.Providers
+namespace DDNSSharp.Core.Providers
 {
-    abstract class ProviderBase
+    public abstract class ProviderBase
     {
         private const string PROVIDER_CONFIG_FILE_NAME = "provider.json";
         private bool _isDeleteCommand = false;

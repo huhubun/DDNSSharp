@@ -1,14 +1,13 @@
-﻿using DDNSSharp.Attributes;
+﻿using DDNSSharp.Core.Providers.Attributes;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
-namespace DDNSSharp.Providers
+namespace DDNSSharp.Core.Providers
 {
-    static class ProviderHelper
+    public static class ProviderHelper
     {
         public static ProviderBase GetInstanceByName(string providerName, CommandLineApplication app)
         {
