@@ -22,13 +22,13 @@ namespace DDNSSharp.Commands.ProviderCommands
 
             var provider = ProviderHelper.GetInstanceByName(Name, app);
 
-            Console.WriteLine($"Now start to set up '{provider.Name}' provider.");
-
             // 加载 Provider 的 Options
             provider.SetOptionsToApp();
 
             // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
             app.Parse(app.RemainingArguments.ToArray());
+
+            Console.WriteLine($"Now start to set up '{provider.Name}' provider.");
 
             provider.SaveOptions();
 

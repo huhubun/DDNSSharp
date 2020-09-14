@@ -3,8 +3,6 @@ using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 
 namespace DDNSSharp.Providers
@@ -16,11 +14,33 @@ namespace DDNSSharp.Providers
 
         public string Name => (Attribute.GetCustomAttribute(this.GetType(), typeof(ProviderAttribute)) as ProviderAttribute)?.Name;
 
+        protected CommandLineApplication App { get; set; }
+
+        public static IEnumerable<ProviderOption> GetOptions()
+        {
+            throw new NotImplementedException("Implement this method in your class.");
+        }
+
         /// <summary>
         /// 向程序声明 Options。<br />
         /// Provider 的 Options 为动态声明的，不同 Provider 的 Options 可以不同。
         /// </summary>
-        public abstract void SetOptionsToApp();
+        public virtual void SetOptionsToApp()
+        {
+            var getOptionsMethod = this.GetType().GetMethod(nameof(GetOptions));
+            if (getOptionsMethod == null)
+            {
+                // Provider 类中没有实现 GetOptions() 方法，显示错误信息
+                GetOptions();
+            }
+
+            var options = getOptionsMethod.Invoke(null, null) as IEnumerable<ProviderOption>;
+
+            foreach (var option in options)
+            {
+                App.Option(option.Template, option.Description, option.OptionType);
+            }
+        }
 
         /// <summary>
         /// 保存新设置的 Options 到配置文件中。
@@ -38,56 +58,6 @@ namespace DDNSSharp.Providers
         }
 
         /// <summary>
-        /// 获取与 Options 关联的属性信息。
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<PropertyInfo> GetOptionProperties()
-        {
-            foreach (var property in this.GetType().GetProperties())
-            {
-                var propertyType = property.PropertyType;
-
-                if (
-                    propertyType == typeof(CommandOption) ||
-                    (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(CommandOption<>))
-                )
-                {
-                    yield return property;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取与 Options 关联的属性的名称。
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<string> GetOptionPropertyNames()
-        {
-            foreach (var property in GetOptionProperties())
-            {
-                yield return property.Name;
-            }
-        }
-
-        /// <summary>
-        /// 从当前 Provider 实例中获取指定的属性名称对应 Option 的值。
-        /// </summary>
-        /// <param name="optionPropertyName">要获取 Option 值的属性名称。</param>
-        /// <returns>对应 Option 的值。</returns>
-        public string GetOptionPropertyValue(string optionPropertyName)
-        {
-            var property = GetOptionProperties().SingleOrDefault(p => p.Name == optionPropertyName);
-
-            if (property == null)
-            {
-                throw new ArgumentException($"Provider '{Name}' has no property named '{optionPropertyName}'", optionPropertyName);
-            }
-
-            var commandOption = property.GetValue(this);
-            return typeof(CommandOption).GetMethod(nameof(CommandOption.Value)).Invoke(commandOption, null)?.ToString();
-        }
-
-        /// <summary>
         /// 将当前 Provider 配置的更改写入配置文件中。
         /// </summary>
         /// <param name="writer"></param>
@@ -101,9 +71,24 @@ namespace DDNSSharp.Providers
             writer.WritePropertyName(Name);
             writer.WriteStartObject();
 
-            foreach (var name in GetOptionPropertyNames())
+            foreach (var option in App.Options)
             {
-                writer.WriteString(name, GetOptionPropertyValue(name));
+                if (option.HasValue())
+                {
+                    if (option.Values.Count > 1)
+                    {
+                        throw new NotSupportedException($"Multiple value of option '{option.LongName}' are not supported.");
+                    }
+
+                    var name = option.LongName ?? option.ShortName;
+
+                    if (String.IsNullOrEmpty(name))
+                    {
+                        throw new ArgumentException($"Option '{option.SymbolName}' has neither LongName nor ShortName.");
+                    }
+
+                    writer.WriteString(name, option.Value());
+                }
             }
 
             writer.WriteEndObject();

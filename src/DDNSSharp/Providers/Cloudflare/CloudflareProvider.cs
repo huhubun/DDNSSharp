@@ -1,26 +1,21 @@
 ﻿using DDNSSharp.Attributes;
 using McMaster.Extensions.CommandLineUtils;
+using System.Collections.Generic;
 
 namespace DDNSSharp.Providers.Cloudflare
 {
-    [Provider(Name = "Cloudflare")]
+    [Provider(Name = "cloudflare")]
     class CloudflareProvider : ProviderBase
     {
-        private CommandLineApplication _app;
-
         public CloudflareProvider(CommandLineApplication app)
         {
-            _app = app;
+            App = app;
         }
 
-        public CommandOption<string> Id { get; private set; }
-
-        public CommandOption<string> Token { get; private set; }
-
-        public override void SetOptionsToApp()
+        public static new IEnumerable<ProviderOption> GetOptions()
         {
-            Id = _app.Option<string>("--id", "Cloudflare Account_ID", CommandOptionType.SingleValue);
-            Token = _app.Option<string>("--token", "Cloudflare Token", CommandOptionType.SingleValue);
+            yield return new ProviderOption("--id", "Cloudflare Account_ID", CommandOptionType.SingleValue);
+            yield return new ProviderOption("--token", "Cloudflare Token", CommandOptionType.SingleValue);
         }
     }
 }
