@@ -1,4 +1,5 @@
-﻿using McMaster.Extensions.CommandLineUtils;
+﻿using DDNSSharp.Providers.Aliyun;
+using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Linq;
 using static DDNSSharp.Providers.ProviderHelper;
@@ -13,6 +14,7 @@ namespace DDNSSharp.Commands.ProviderCommands
 
         int OnExecute(CommandLineApplication app)
         {
+            // 没传入 name 时，返回已经配置过的 Provider 列表
             if (String.IsNullOrEmpty(Name))
             {
                 Console.WriteLine("List of already configured providers:");

@@ -3,7 +3,9 @@ using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
+using System.Text.Unicode;
 using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Providers
@@ -51,25 +53,40 @@ namespace DDNSSharp.Providers
             SaveConfigFile();
         }
 
-        //public void GetConfigFileNode()
-        //{
-        //    var configBytes = File.ReadAllBytes(PROVIDER_CONFIG_FILE_NAME);
-        //    if(configBytes.Length == 0)
-        //    {
-        //        return;
-        //    }
+        public virtual T GetConfig<T>() where T : class, IProviderConfig
+        {
+            var currentProviderConfigBytes = GetConfigByName(Name);
 
-        //    using var document = JsonDocument.Parse(configBytes);
-        //    var root = document.RootElement;
+            if (currentProviderConfigBytes == null || currentProviderConfigBytes.Length == 0)
+            {
+                return null;
+            }
 
-        //    foreach (var jsonProperty in root.EnumerateObject())
-        //    {
-        //        if (jsonProperty.Name == Name && jsonProperty.Value.ValueKind == JsonValueKind.Object)
-        //        {
+            return JsonSerializer.Deserialize<T>(currentProviderConfigBytes, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
 
-        //        }
-        //    }
-        //}
+        public void GetConfigFileNode()
+        {
+            var configBytes = File.ReadAllBytes(PROVIDER_CONFIG_FILE_NAME);
+            if (configBytes.Length == 0)
+            {
+                return;
+            }
+
+            using var document = JsonDocument.Parse(configBytes);
+            var root = document.RootElement;
+
+            foreach (var jsonProperty in root.EnumerateObject())
+            {
+                if (jsonProperty.Name == Name && jsonProperty.Value.ValueKind == JsonValueKind.Object)
+                {
+
+                }
+            }
+        }
 
         /// <summary>
         /// 将当前 Provider 配置的更改写入配置文件中。

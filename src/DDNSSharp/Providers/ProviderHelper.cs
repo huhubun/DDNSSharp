@@ -92,5 +92,40 @@ namespace DDNSSharp.Providers
                 }
             }
         }
+
+        public static byte[] GetConfigByName(string providerName)
+        {
+            if (providerName == null)
+            {
+                throw new ArgumentNullException(nameof(providerName));
+            }
+
+            var configBytes = File.ReadAllBytes(ProviderBase.PROVIDER_CONFIG_FILE_NAME);
+            if (configBytes.Length == 0)
+            {
+                return null;
+            }
+
+            using var document = JsonDocument.Parse(configBytes);
+            var root = document.RootElement;
+
+            foreach (var jsonProperty in root.EnumerateObject())
+            {
+                if (jsonProperty.Name == providerName && jsonProperty.Value.ValueKind == JsonValueKind.Object)
+                {
+                    using var ms = new MemoryStream();
+                    using var writer = new Utf8JsonWriter(ms);
+
+                    jsonProperty.Value.WriteTo(writer);
+
+                    writer.Flush();
+                    ms.Seek(0, SeekOrigin.Begin);
+
+                    return ms.ToArray();
+                }
+            }
+
+            return null;
+        }
     }
 }
