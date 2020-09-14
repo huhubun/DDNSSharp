@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Providers
 {
     abstract class ProviderBase
     {
-        private const string PROVIDER_CONFIG_FILE_NAME = "provider.json";
+        public const string PROVIDER_CONFIG_FILE_NAME = "provider.json";
         private bool _isDeleteCommand = false;
 
         public string Name => (Attribute.GetCustomAttribute(this.GetType(), typeof(ProviderAttribute)) as ProviderAttribute)?.Name;
@@ -27,14 +28,7 @@ namespace DDNSSharp.Providers
         /// </summary>
         public virtual void SetOptionsToApp()
         {
-            var getOptionsMethod = this.GetType().GetMethod(nameof(GetOptions));
-            if (getOptionsMethod == null)
-            {
-                // Provider 类中没有实现 GetOptions() 方法，显示错误信息
-                GetOptions();
-            }
-
-            var options = getOptionsMethod.Invoke(null, null) as IEnumerable<ProviderOption>;
+            var options = GetProviderOptions(this.GetType());
 
             foreach (var option in options)
             {
@@ -56,6 +50,26 @@ namespace DDNSSharp.Providers
 
             SaveConfigFile();
         }
+
+        //public void GetConfigFileNode()
+        //{
+        //    var configBytes = File.ReadAllBytes(PROVIDER_CONFIG_FILE_NAME);
+        //    if(configBytes.Length == 0)
+        //    {
+        //        return;
+        //    }
+
+        //    using var document = JsonDocument.Parse(configBytes);
+        //    var root = document.RootElement;
+
+        //    foreach (var jsonProperty in root.EnumerateObject())
+        //    {
+        //        if (jsonProperty.Name == Name && jsonProperty.Value.ValueKind == JsonValueKind.Object)
+        //        {
+
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// 将当前 Provider 配置的更改写入配置文件中。

@@ -1,7 +1,7 @@
-﻿using DDNSSharp.Providers;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Commands.ProviderCommands
 {
@@ -9,24 +9,45 @@ namespace DDNSSharp.Commands.ProviderCommands
     class DeleteCommand
     {
         [Argument(0, Description = "Provider name")]
-        [Required]
         public string Name { get; }
 
         int OnExecute(CommandLineApplication app)
         {
             if (String.IsNullOrEmpty(Name))
             {
-                app.ShowHelp();
+                Console.WriteLine("List of already configured providers:");
+
+                var names = GetConfiguredProviderNames();
+
+                if (names.Any())
+                {
+                    foreach (var providerName in names)
+                    {
+                        Console.WriteLine($"  {providerName}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("(There are no providers that have been set up. Use `provider set` command to set one.)");
+                }
+
                 return 1;
             }
 
-            var provider = ProviderHelper.GetInstanceByName(Name, app);
+            var provider = GetInstanceByName(Name, app);
 
             Console.WriteLine($"Now start to delete the configuration of '{provider.Name}' provider.");
 
-            provider.DeleteOptions();
+            if (GetConfiguredProviderNames().Contains(Name))
+            {
+                provider.DeleteOptions();
 
-            Console.WriteLine("Deleted.");
+                Console.WriteLine("Deleted.");
+            }
+            else
+            {
+                Console.WriteLine("This provider does not have any configuration.");
+            }
 
             return 0;
         }

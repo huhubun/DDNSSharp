@@ -1,4 +1,5 @@
 ﻿using DDNSSharp.Commands;
+using DDNSSharp.HelpText;
 using McMaster.Extensions.CommandLineUtils;
 using System.Reflection;
 
@@ -15,7 +16,14 @@ namespace DDNSSharp
 
     class Program
     {
-        public static void Main(string[] args) => CommandLineApplication.Execute<Program>(args);
+        public static int Main(string[] args)
+        {
+            var app = new CommandLineApplication<Program>();
+            app.HelpTextGenerator = new DDNSSharpHelpTextGenerator();
+            app.Conventions.UseDefaultConventions();
+
+            return app.Execute(args);
+        }
 
         protected int OnExecute(CommandLineApplication app)
         {
