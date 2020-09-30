@@ -1,8 +1,6 @@
 ﻿using DDNSSharp.Commands.ProviderCommands;
 using McMaster.Extensions.CommandLineUtils;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 
 namespace DDNSSharp.Commands
 {
@@ -12,5 +10,14 @@ namespace DDNSSharp.Commands
     )]
     class ProviderCommand
     {
+        int OnExecute(CommandLineApplication app, IConsole console)
+        {
+            app.ShowHelp();
+
+            WriteSupportedProviderListToConsole(console.Out, endWithNewLine: true);
+            WriteAlreadyConfiguredProviderListToConsole(console.Out, endWithNewLine: true);
+
+            return 1;
+        }
     }
 }

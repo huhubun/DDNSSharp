@@ -1,7 +1,8 @@
 ﻿using DDNSSharp.Providers;
 using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.ComponentModel.DataAnnotations;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
+using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Commands.ProviderCommands
 {
@@ -9,10 +10,9 @@ namespace DDNSSharp.Commands.ProviderCommands
     class SetCommand
     {
         [Argument(0, Description = "Provider name")]
-        [Required]
         public string Name { get; }
 
-        int OnExecute(CommandLineApplication app)
+        int OnExecute(CommandLineApplication app, IConsole console)
         {
             if (String.IsNullOrEmpty(Name))
             {
@@ -20,7 +20,22 @@ namespace DDNSSharp.Commands.ProviderCommands
                 return 1;
             }
 
-            var provider = ProviderHelper.GetInstanceByName(Name, app);
+            ProviderBase provider;
+
+            try
+            {
+                provider = GetInstanceByName(Name, app);
+            }
+            catch (NotSupportedException ex)
+            {
+                console.Error.WriteLine(ex.Message);
+
+                console.Out.WriteLine();
+
+                WriteSupportedProviderListToConsole(console.Out);
+
+                return 0;
+            }
 
             // 加载 Provider 的 Options
             provider.SetOptionsToApp();

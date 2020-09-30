@@ -1,7 +1,8 @@
-﻿using DDNSSharp.Providers.Aliyun;
+﻿using DDNSSharp.Providers;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Linq;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Commands.ProviderCommands
@@ -12,31 +13,30 @@ namespace DDNSSharp.Commands.ProviderCommands
         [Argument(0, Description = "Provider name")]
         public string Name { get; }
 
-        int OnExecute(CommandLineApplication app)
+        int OnExecute(CommandLineApplication app, IConsole console)
         {
-            // 没传入 name 时，返回已经配置过的 Provider 列表
             if (String.IsNullOrEmpty(Name))
             {
-                Console.WriteLine("List of already configured providers:");
-
-                var names = GetConfiguredProviderNames();
-
-                if (names.Any())
-                {
-                    foreach (var providerName in names)
-                    {
-                        Console.WriteLine($"  {providerName}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("(There are no providers that have been set up. Use `provider set` command to set one.)");
-                }
-
+                app.ShowHelp();
                 return 1;
             }
 
-            var provider = GetInstanceByName(Name, app);
+            ProviderBase provider;
+
+            try
+            {
+                provider = GetInstanceByName(Name, app);
+            }
+            catch (NotSupportedException ex)
+            {
+                console.Error.WriteLine(ex.Message);
+
+                console.Out.WriteLine();
+
+                WriteAlreadyConfiguredProviderListToConsole(console.Out);
+
+                return 0;
+            }
 
             Console.WriteLine($"Now start to delete the configuration of '{provider.Name}' provider.");
 

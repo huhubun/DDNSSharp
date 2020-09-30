@@ -3,6 +3,7 @@ using McMaster.Extensions.CommandLineUtils.HelpText;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.HelpText
@@ -13,14 +14,18 @@ namespace DDNSSharp.HelpText
         {
             base.GenerateArguments(application, output, visibleArguments, firstColumnWidth);
 
-            if (
-                application is CommandLineApplication<Commands.ProviderCommands.SetCommand> ||
-                application is CommandLineApplication<Commands.ProviderCommands.DeleteCommand>
-               )
+            if (application is CommandLineApplication<Commands.ProviderCommands.SetCommand>)
             {
                 output.WriteLine();
 
-                WriteSupportedProviderList(output, endWithNewLine: false);
+                WriteSupportedProviderListToConsole(output, endWithNewLine: false);
+            }
+
+            if (application is CommandLineApplication<Commands.ProviderCommands.DeleteCommand>)
+            {
+                output.WriteLine();
+
+                WriteAlreadyConfiguredProviderListToConsole(output, endWithNewLine: false);
             }
         }
 
@@ -49,21 +54,6 @@ namespace DDNSSharp.HelpText
                         output.WriteLine(message);
                     }
                 }
-            }
-        }
-
-        private void WriteSupportedProviderList(TextWriter output, bool endWithNewLine = true)
-        {
-            output.WriteLine("List of supported providers:");
-
-            foreach (var name in GetProviderNames())
-            {
-                output.WriteLine($"  {name}");
-            }
-
-            if (endWithNewLine)
-            {
-                output.WriteLine();
             }
         }
     }
