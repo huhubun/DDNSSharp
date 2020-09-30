@@ -1,10 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DDNSSharp.Commands.ProviderCommands;
+using McMaster.Extensions.CommandLineUtils;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 
 namespace DDNSSharp.Commands
 {
+    [Subcommand(
+        typeof(SetCommand),
+        typeof(ProviderCommands.DeleteCommand)
+    )]
     class ProviderCommand
     {
+        int OnExecute(CommandLineApplication app, IConsole console)
+        {
+            app.ShowHelp();
+
+            WriteSupportedProviderListToConsole(console.Out, endWithNewLine: true);
+            WriteAlreadyConfiguredProviderListToConsole(console.Out, endWithNewLine: true);
+
+            return 1;
+        }
     }
 }
