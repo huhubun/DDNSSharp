@@ -40,6 +40,16 @@ namespace DDNSSharp.Providers
             return GetProviderTypes().Select(t => GetProviderName(t));
         }
 
+        /// <summary>
+        /// 判断指定的 DNS 提供商是否支持
+        /// </summary>
+        /// <param name="providerName">DNS 提供商名称</param>
+        /// <returns></returns>
+        public static bool CheckSupportability(string providerName)
+        {
+            return GetProviderNames().Any(p => p == providerName);
+        }
+
         public static string GetProviderName(Type type)
         {
             return (Attribute.GetCustomAttribute(type, typeof(ProviderAttribute)) as ProviderAttribute)?.Name;

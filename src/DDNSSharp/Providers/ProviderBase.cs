@@ -3,9 +3,7 @@ using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
 using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Providers
