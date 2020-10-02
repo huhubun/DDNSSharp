@@ -12,6 +12,7 @@ namespace DDNSSharp
         typeof(AddCommand),
         typeof(DeleteCommand),
         typeof(SyncCommand),
+        typeof(IpCommand),
         typeof(ProviderCommand)
     )]
 

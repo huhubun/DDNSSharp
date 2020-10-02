@@ -21,6 +21,26 @@ namespace DDNSSharp.Configs
         /// </summary>
         public string Provider { get; set; }
 
+        /// <summary>
+        /// 该域名的 IP 地址来源于哪个网卡
+        /// </summary>
+        public string Interface { get; set; }
+
+        /// <summary>
+        /// 上次同步是否成功
+        /// </summary>
+        public bool? IsLastSyncSuccess { get; set; }
+
+        /// <summary>
+        /// 上次同步成功的时间
+        /// </summary>
+        public DateTime? LastSyncSuccessTime { get; set; }
+
+        /// <summary>
+        /// 上次同步的时间
+        /// </summary>
+        public DateTime? LastSyncTime { get; set; }
+
         public int CompareTo([AllowNull] DomainConfigItem other)
         {
             const int EQUALS = 0;
