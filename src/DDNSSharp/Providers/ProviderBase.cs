@@ -1,11 +1,10 @@
 ﻿using DDNSSharp.Attributes;
+using DDNSSharp.Configs;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
 using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Providers
@@ -87,6 +86,8 @@ namespace DDNSSharp.Providers
                 }
             }
         }
+
+        public abstract void Sync(IEnumerable<DomainConfigItem> domainConfigItems);
 
         /// <summary>
         /// 将当前 Provider 配置的更改写入配置文件中。

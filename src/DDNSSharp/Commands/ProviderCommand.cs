@@ -12,8 +12,6 @@ namespace DDNSSharp.Commands
     {
         int OnExecute(CommandLineApplication app, IConsole console)
         {
-            app.ShowHelp();
-
             WriteSupportedProviderListToConsole(console.Out, endWithNewLine: true);
             WriteAlreadyConfiguredProviderListToConsole(console.Out, endWithNewLine: true);
 
