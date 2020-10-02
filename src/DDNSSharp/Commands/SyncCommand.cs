@@ -1,4 +1,5 @@
-﻿using McMaster.Extensions.CommandLineUtils;
+﻿using DDNSSharp.Providers;
+using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace DDNSSharp.Commands
             var group = GetConfigs().GroupBy(c => c.Provider);
             foreach (var domainConfigItems in group)
             {
-                
+                var provider = ProviderHelper.GetInstanceByName(domainConfigItems.Key, app);
+                provider.Sync(domainConfigItems);
             }
 
             return 0;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DDNSSharp.Exceptions.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -18,6 +19,23 @@ namespace DDNSSharp.Helpers
                         .Where(i => i.OperationalStatus == OperationalStatus.Up)
                         .Where(i => i.GetAvailableIPAddress().Any())
                         .ToList();
+        }
+
+        public static string GetAddress(string interfaceName, AddressFamily addressFamily)
+        {
+            var iface = NetworkInterface.GetAllNetworkInterfaces().SingleOrDefault(i => i.Name == interfaceName);
+            if (iface == null)
+            {
+                throw new InterfaceNotFoundException();
+            }
+
+            var address = iface.GetAvailableIPAddress().FirstOrDefault(a => a.Address.AddressFamily == addressFamily);
+            if (address == null)
+            {
+                throw new AddressFamilyNotFoundException();
+            }
+
+            return address.Address.ToString();
         }
     }
 
