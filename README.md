@@ -5,7 +5,7 @@ A cross-platform DDNS tool.
 
 ## 安装
 - 需要 [.NET Core 3.1 Runtime](https://dotnet.microsoft.com/download/dotnet-core)
-- [下载](./releases)
+- [下载](https://github.com/huhubun/DDNSSharp/releases)
 
 ## Domain management 域名管理
 
