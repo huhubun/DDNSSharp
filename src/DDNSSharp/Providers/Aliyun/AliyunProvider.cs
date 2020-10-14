@@ -1,5 +1,6 @@
 ﻿using Aliyun.Acs.Alidns.Model.V20150109;
 using Aliyun.Acs.Core;
+using Aliyun.Acs.Core.Exceptions;
 using Aliyun.Acs.Core.Profile;
 using DDNSSharp.Attributes;
 using DDNSSharp.Configs;
@@ -40,6 +41,9 @@ namespace DDNSSharp.Providers.Aliyun
 
                 // 更新该记录的同步时间
                 item.LastSyncTime = DateTime.Now;
+
+                // 更新解析记录使用的请求，为了便于 catch 时获取相关数据，所以定义在 try 块外面
+                UpdateDomainRecordRequest updateRequest = null;
 
                 try
                 {
@@ -102,7 +106,7 @@ namespace DDNSSharp.Providers.Aliyun
                     var address = IPHelper.GetAddress(item.Interface, item.AddressFamily);
                     Console.WriteLine($"Interface {item.Interface} {item.AddressFamily} address is {address}");
 
-                    var updateRequest = new UpdateDomainRecordRequest
+                    updateRequest = new UpdateDomainRecordRequest
                     {
                         RecordId = recordId,
                         RR = rr,
@@ -118,6 +122,23 @@ namespace DDNSSharp.Providers.Aliyun
                     item.IsLastSyncSuccess = true;
                     item.LastSyncSuccessIP = address;
                     item.LastSyncSuccessTime = DateTime.Now;
+                }
+                catch (ClientException ex)
+                {
+                    // 如果更新时返回了 DomainRecordDuplicate 错误
+                    // 有可能是本地记录的 LastSyncSuccessIP 和机器实际的 IP 以及域名解析提供商一侧的地址不匹配（例如有段时间里程序没有执行，但 IP 发生了改变，就会造成 LastSyncSuccessIP 和提供商处的 IP 地址，以及实际地址不匹配）
+                    if (ex.ErrorCode == "DomainRecordDuplicate" && !String.IsNullOrEmpty(item.LastSyncSuccessIP) && updateRequest._Value != item.LastSyncSuccessIP)
+                    {
+                        item.IsLastSyncSuccess = false;
+                        item.LastSyncSuccessIP = updateRequest?._Value;
+
+                        App.Out.WriteLine($"The update failed because the IP address recorded in the cache does not match the actual IP address and the IP address stored by the provider. The cache record has been updated, you can ignore this prompt.");
+                    }
+                    else
+                    {
+                        App.Error.WriteLine($"{item.Domain} update failed");
+                        App.Error.WriteLine(ex);
+                    }
                 }
                 catch (Exception ex)
                 {
