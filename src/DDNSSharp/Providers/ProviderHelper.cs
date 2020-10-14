@@ -83,6 +83,11 @@ namespace DDNSSharp.Providers
 
         public static IEnumerable<string> GetConfiguredProviderNames()
         {
+            if (!File.Exists(ProviderBase.PROVIDER_CONFIG_FILE_NAME))
+            {
+                yield break;
+            }
+
             var configBytes = File.ReadAllBytes(ProviderBase.PROVIDER_CONFIG_FILE_NAME);
             if (configBytes.Length == 0)
             {
@@ -108,6 +113,11 @@ namespace DDNSSharp.Providers
             if (providerName == null)
             {
                 throw new ArgumentNullException(nameof(providerName));
+            }
+
+            if (!File.Exists(ProviderBase.PROVIDER_CONFIG_FILE_NAME))
+            {
+                return null;
             }
 
             var configBytes = File.ReadAllBytes(ProviderBase.PROVIDER_CONFIG_FILE_NAME);

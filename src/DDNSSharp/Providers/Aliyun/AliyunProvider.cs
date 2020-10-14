@@ -8,7 +8,6 @@ using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace DDNSSharp.Providers.Aliyun
 {
@@ -39,33 +38,17 @@ namespace DDNSSharp.Providers.Aliyun
             {
                 Console.WriteLine($"Current domain: {item.Domain}");
 
+                // 更新该记录的同步时间
+                item.LastSyncTime = DateTime.Now;
+
                 try
                 {
                     string recordId;
                     string rr;
                     string value;
 
-                    // TODO 
-                    // - 比较上次更新成功时的 ip 地址，如果 ip 地址变化了才发起请求
-                    // - 增加一个选项：强制刷新。不管上次 ip 是什么，都发起请求
-
                     var domainName = item.Domain;
                     var domainTypeString = item.Type.ToString();
-                    AddressFamily addressFamily;
-
-                    switch (item.Type)
-                    {
-                        case Enums.DomainRecordType.A:
-                            addressFamily = AddressFamily.InterNetwork;
-                            break;
-
-                        case Enums.DomainRecordType.AAAA:
-                            addressFamily = AddressFamily.InterNetworkV6;
-                            break;
-
-                        default:
-                            throw new NotSupportedException($"Not supported domain type {item.Type}.");
-                    }
 
                     // 先用获取子域名的 API DescribeSubDomainRecordsRequest 进行尝试，如果查询不到该子域名，再尝试使用 DescribeDomainRecordsRequest 进行根域名查询
                     Console.WriteLine($"Try use sub domain api to search. SubDomain = {domainName}, Type = {domainTypeString}");
@@ -116,8 +99,8 @@ namespace DDNSSharp.Providers.Aliyun
                         throw new KeyNotFoundException($"Update failed: cannot find a record for the domain name {item.Domain}.");
                     }
 
-                    var address = IpHelper.GetAddress(item.Interface, addressFamily);
-                    Console.WriteLine($"Interface {item.Interface} {addressFamily} address is {address}");
+                    var address = IPHelper.GetAddress(item.Interface, item.AddressFamily);
+                    Console.WriteLine($"Interface {item.Interface} {item.AddressFamily} address is {address}");
 
                     var updateRequest = new UpdateDomainRecordRequest
                     {
@@ -129,11 +112,22 @@ namespace DDNSSharp.Providers.Aliyun
 
                     var updateResponse = client.GetAcsResponse(updateRequest);
 
-                    Console.WriteLine($"{item.Domain} success");
+                    Console.WriteLine($"{item.Domain} updated successfully: {value} -> {address}");
+                    Console.WriteLine();
+
+                    item.IsLastSyncSuccess = true;
+                    item.LastSyncSuccessIP = address;
+                    item.LastSyncSuccessTime = DateTime.Now;
                 }
                 catch (Exception ex)
                 {
+                    item.IsLastSyncSuccess = false;
+
                     Console.WriteLine(ex);
+                }
+                finally
+                {
+                    DomainConfigHelper.UpdateItem(item);
                 }
             }
         }

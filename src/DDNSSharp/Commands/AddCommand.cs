@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.NetworkInformation;
 using static DDNSSharp.Commands.Helpers.AddCommandHelper;
-using static DDNSSharp.Helpers.IpHelper;
+using static DDNSSharp.Helpers.IPHelper;
 
 namespace DDNSSharp.Commands
 {
@@ -23,7 +23,7 @@ namespace DDNSSharp.Commands
         /// <summary>
         /// 域名记录类型
         /// </summary>
-        [Option(CommandOptionType.SingleValue, Description = "Domain record type. Default is 'A'.")]
+        [Option(CommandOptionType.SingleValue, Description = "Domain record type. Default is 'A'.\nAllowed values are: A, AAAA.")]
         public DomainRecordType? Type { get; set; }
 
         /// <summary>

@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace DDNSSharp.Helpers
 {
-    public static class IpHelper
+    public static class IPHelper
     {
         /// <summary>
         /// 获取可用的网卡信息。当含有 IPv4 地址，或 Scope 为 Global 类型的 IPv6 地址时，认为其可用。

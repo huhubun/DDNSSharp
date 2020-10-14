@@ -1,6 +1,8 @@
 ﻿using DDNSSharp.Enums;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Sockets;
+using System.Text.Json.Serialization;
 
 namespace DDNSSharp.Configs
 {
@@ -15,6 +17,14 @@ namespace DDNSSharp.Configs
         /// 域名记录类型
         /// </summary>
         public DomainRecordType Type { get; set; }
+
+        [JsonIgnore]
+        public AddressFamily AddressFamily => Type switch
+        {
+            DomainRecordType.A => AddressFamily.InterNetwork,
+            DomainRecordType.AAAA => AddressFamily.InterNetworkV6,
+            _ => throw new NotSupportedException($"Not supported domain type '{Type}'.")
+        };
 
         /// <summary>
         /// DNS 提供商
@@ -32,14 +42,19 @@ namespace DDNSSharp.Configs
         public bool? IsLastSyncSuccess { get; set; }
 
         /// <summary>
-        /// 上次同步成功的时间
+        /// 上次同步的时间
+        /// </summary>
+        public DateTime? LastSyncTime { get; set; }
+
+        /// <summary>
+        /// 上次同步成功时的时间
         /// </summary>
         public DateTime? LastSyncSuccessTime { get; set; }
 
         /// <summary>
-        /// 上次同步的时间
+        /// 上次同步成功时的 IP 地址
         /// </summary>
-        public DateTime? LastSyncTime { get; set; }
+        public string LastSyncSuccessIP { get; set; }
 
         public int CompareTo([AllowNull] DomainConfigItem other)
         {
