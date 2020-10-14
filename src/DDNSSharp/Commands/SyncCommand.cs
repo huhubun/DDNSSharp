@@ -62,6 +62,8 @@ namespace DDNSSharp.Commands
                     }
 
                     UpdateItem(item);
+
+                    console.Out.WriteLine("--------------------");
                 }
             }
 

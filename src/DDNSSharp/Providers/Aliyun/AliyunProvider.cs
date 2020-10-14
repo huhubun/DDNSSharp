@@ -155,10 +155,6 @@ namespace DDNSSharp.Providers.Aliyun
                     throw;
                 }
             }
-            finally
-            {
-                Console.WriteLine("--------------------");
-            }
         }
     }
 }
