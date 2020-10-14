@@ -1,8 +1,5 @@
 ﻿using DDNSSharp.Configs;
 using McMaster.Extensions.CommandLineUtils;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static DDNSSharp.Commands.Helpers.ListCommandHelper;
 
 namespace DDNSSharp.Commands

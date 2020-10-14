@@ -77,11 +77,27 @@ namespace DDNSSharp.Configs
             File.WriteAllBytes(DOMAIN_CONFIG_FILE_NAME, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
         }
 
+        public static void UpdateItem(DomainConfigItem item)
+        {
+            var configs = GetConfigs() ?? new List<DomainConfigItem>();
+
+            var i = configs.FindIndex(c => c.Equals(item));
+
+            if (i == -1)
+            {
+                throw new KeyNotFoundException($"No record with domain name '{item.Domain}' and type '{item.Type}' was found.");
+            }
+
+            configs[i] = item;
+            File.WriteAllBytes(DOMAIN_CONFIG_FILE_NAME, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
+        }
+
         public static int DeleteItem(DomainConfigItem item)
         {
             var configs = GetConfigs() ?? new List<DomainConfigItem>();
             var originalCount = configs.Count;
 
+            // TODO 这里不可能查到多个相等并返回 List 的
             configs = configs.Where(c => !c.Equals(item)).ToList();
             var currentCount = configs.Count;
 

@@ -1,4 +1,5 @@
 ﻿using DDNSSharp.Attributes;
+using DDNSSharp.Commands.SyncCommands;
 using DDNSSharp.Configs;
 using McMaster.Extensions.CommandLineUtils;
 using System;
@@ -87,7 +88,9 @@ namespace DDNSSharp.Providers
             }
         }
 
-        public abstract void Sync(IEnumerable<DomainConfigItem> domainConfigItems);
+        public abstract void BeforeSync();
+
+        public abstract void Sync(SyncContext context);
 
         /// <summary>
         /// 将当前 Provider 配置的更改写入配置文件中。

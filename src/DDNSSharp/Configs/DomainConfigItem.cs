@@ -1,6 +1,9 @@
-﻿using DDNSSharp.Enums;
+﻿using DDNSSharp.Commands.SyncCommands;
+using DDNSSharp.Enums;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Sockets;
+using System.Text.Json.Serialization;
 
 namespace DDNSSharp.Configs
 {
@@ -16,6 +19,14 @@ namespace DDNSSharp.Configs
         /// </summary>
         public DomainRecordType Type { get; set; }
 
+        [JsonIgnore]
+        public AddressFamily AddressFamily => Type switch
+        {
+            DomainRecordType.A => AddressFamily.InterNetwork,
+            DomainRecordType.AAAA => AddressFamily.InterNetworkV6,
+            _ => throw new NotSupportedException($"Not supported domain type '{Type}'.")
+        };
+
         /// <summary>
         /// DNS 提供商
         /// </summary>
@@ -27,19 +38,29 @@ namespace DDNSSharp.Configs
         public string Interface { get; set; }
 
         /// <summary>
-        /// 上次同步是否成功
+        /// 上次同步结果
         /// </summary>
-        public bool? IsLastSyncSuccess { get; set; }
-
-        /// <summary>
-        /// 上次同步成功的时间
-        /// </summary>
-        public DateTime? LastSyncSuccessTime { get; set; }
+        public SyncStatus LastSyncStatus { get; set; }
 
         /// <summary>
         /// 上次同步的时间
         /// </summary>
         public DateTime? LastSyncTime { get; set; }
+
+        /// <summary>
+        /// 上次同步成功时的时间
+        /// </summary>
+        public DateTime? LastSyncSuccessTime { get; set; }
+
+        /// <summary>
+        /// 上次同步成功前的 IP 地址
+        /// </summary>
+        public string LastSyncSuccessOriginalIP { get; set; }
+
+        /// <summary>
+        /// 上次同步成功后的 IP 地址
+        /// </summary>
+        public string LastSyncSuccessCurrentIP { get; set; }
 
         public int CompareTo([AllowNull] DomainConfigItem other)
         {

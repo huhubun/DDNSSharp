@@ -2,7 +2,7 @@
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Net.Sockets;
-using static DDNSSharp.Helpers.IpHelper;
+using static DDNSSharp.Helpers.IPHelper;
 
 namespace DDNSSharp.Commands
 {
