@@ -1,7 +1,4 @@
 ﻿using DDNSSharp.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DDNSSharp.Configs
 {
@@ -10,7 +7,7 @@ namespace DDNSSharp.Configs
         public static bool IsIPChanged(this DomainConfigItem configItem)
         {
             var currentAddress = IPHelper.GetAddress(configItem.Interface, configItem.AddressFamily);
-            var lastAddress = configItem.LastSyncSuccessIP;
+            var lastAddress = configItem.LastSyncSuccessCurrentIP;
 
             return currentAddress != lastAddress;
         }

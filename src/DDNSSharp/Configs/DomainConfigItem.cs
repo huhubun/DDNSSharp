@@ -1,4 +1,5 @@
-﻿using DDNSSharp.Enums;
+﻿using DDNSSharp.Commands.SyncCommands;
+using DDNSSharp.Enums;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
@@ -37,9 +38,9 @@ namespace DDNSSharp.Configs
         public string Interface { get; set; }
 
         /// <summary>
-        /// 上次同步是否成功
+        /// 上次同步结果
         /// </summary>
-        public bool? IsLastSyncSuccess { get; set; }
+        public SyncStatus LastSyncStatus { get; set; }
 
         /// <summary>
         /// 上次同步的时间
@@ -52,9 +53,14 @@ namespace DDNSSharp.Configs
         public DateTime? LastSyncSuccessTime { get; set; }
 
         /// <summary>
-        /// 上次同步成功时的 IP 地址
+        /// 上次同步成功前的 IP 地址
         /// </summary>
-        public string LastSyncSuccessIP { get; set; }
+        public string LastSyncSuccessOriginalIP { get; set; }
+
+        /// <summary>
+        /// 上次同步成功后的 IP 地址
+        /// </summary>
+        public string LastSyncSuccessCurrentIP { get; set; }
 
         public int CompareTo([AllowNull] DomainConfigItem other)
         {

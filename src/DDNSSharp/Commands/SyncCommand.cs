@@ -1,6 +1,8 @@
-﻿using DDNSSharp.Configs;
+﻿using DDNSSharp.Commands.SyncCommands;
+using DDNSSharp.Configs;
 using DDNSSharp.Providers;
 using McMaster.Extensions.CommandLineUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static DDNSSharp.Configs.DomainConfigHelper;
@@ -22,52 +24,61 @@ namespace DDNSSharp.Commands
             if (!group.Any())
             {
                 console.Out.WriteLine("No domain name is currently configured, please add domain name information via the `add` command.");
+                return 0;
             }
 
             foreach (var domainConfigItems in group)
             {
                 var provider = ProviderHelper.GetInstanceByName(domainConfigItems.Key, app);
+                provider.BeforeSync();
 
-                var items = domainConfigItems.AsEnumerable();
-
-                if (!Force)
+                foreach (var item in domainConfigItems)
                 {
-                    var ignores = items.Where(i => i.IsIPChanged() == false);
-                    OutputIgnoreDomainList(ignores, console);
+                    console.Out.WriteLine($"Current domain: {item.Domain}");
 
                     // 非强制刷新的情况下，只将 IP 地址变化的内容传给域名解析服务商
-                    items = items.Where(i => i.IsIPChanged());
-                }
+                    if (item.IsIPChanged() || Force)
+                    {
+                        try
+                        {
+                            provider.Sync(new SyncContext
+                            {
+                                DomainConfigItem = item
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            item.LastSyncStatus = SyncStatus.Failure;
 
-                provider.Sync(items);
+                            console.Error.WriteLine($"{item.Domain} update failed");
+                            console.Error.WriteLine(ex);
+                        }
+                    }
+                    else
+                    {
+                        console.Out.WriteLine($"This domain names will not be synchronized because their IP addresses have not changed. Its current record is {item.LastSyncSuccessCurrentIP}. If there is a difference with the provider, please use `--force` to force synchronization.");
+
+                        item.LastSyncStatus = SyncStatus.Ignore;
+                    }
+
+                    UpdateItem(item);
+                }
             }
 
-            if (group.Any())
+            console.Out.WriteLine();
+
+            var results = GetConfigs().OrderBy(c => c.Provider);
+
+            console.Out.WriteLine($"Synchronization is complete. Total = {results.Count()} (Success = {results.Count(i => i.LastSyncStatus == SyncStatus.Success)}, Failure = {results.Count(i => i.LastSyncStatus == SyncStatus.Failure)}, Ignore = {results.Count(i => i.LastSyncStatus == SyncStatus.Ignore)}).");
+
+            foreach (var item in results)
             {
-                // TODO 考虑在这里收集同步信息，展示成功、失败的数量
-                console.Out.WriteLine("Synchronization is complete.");
+                var changes = item.LastSyncStatus == SyncStatus.Success ? $"{item.LastSyncSuccessOriginalIP} -> {item.LastSyncSuccessCurrentIP}" : "--";
+
+                console.Out.WriteLine($"{item.Domain} | {item.Type} | {item.Provider} | {item.LastSyncStatus} | {changes}");
             }
 
             return 0;
-        }
-
-        void OutputIgnoreDomainList(IEnumerable<DomainConfigItem> domainConfigItems, IConsole console)
-        {
-            if (domainConfigItems.Any())
-            {
-                console.Out.WriteLine("The following domain names will not be synchronized because their IP addresses have not changed.");
-            }
-
-            foreach (var item in domainConfigItems)
-            {
-                // TODO 输出内容美化
-                console.Out.WriteLine($"{item.Domain} | {item.Type}");
-            }
-
-            if (domainConfigItems.Any())
-            {
-                console.Out.WriteLine();
-            }
         }
     }
 }
