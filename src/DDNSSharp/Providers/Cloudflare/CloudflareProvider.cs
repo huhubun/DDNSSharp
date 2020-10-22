@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DDNSSharp.Providers.Cloudflare
 {
-    [Provider(Name = "cloudflare")]
+    //[Provider(Name = "cloudflare")]
     class CloudflareProvider : ProviderBase
     {
         public CloudflareProvider(CommandLineApplication app)

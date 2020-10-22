@@ -3,8 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <AssemblyName>ddnssharp</AssemblyName>
+    <Company></Company>
+    <Product>DDNSSharp</Product>
+    <Authors>huhubun</Authors>
+    <PackageProjectUrl>https://github.com/huhubun/DDNSSharp</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
