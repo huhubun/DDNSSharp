@@ -4,19 +4,20 @@ on: [push, pull_request]
 
 env:
   DOTNET_SDK_VERSION: 3.1
+  NET_CORE_VERSION: netcoreapp3.1
 
 jobs:
   main:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-     
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -27,6 +28,40 @@ jobs:
 
       - name: Install dependencies
         run: dotnet restore
-        
+
       - name: Build
         run: dotnet build --configuration Release --no-restore --nologo
+
+      - name: Publish for Windows
+        if: startsWith(matrix.os, 'windows-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_windows --nologo
+
+      - name: Publish for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_linux --nologo
+
+      - name: Publish for MacOS
+        if: startsWith(matrix.os, 'macos-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_macos --nologo
+
+      - name: Package for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: tar caf ddnssharp_linux.tar.gz ddnssharp_linux
+
+      - name: Package for MacOS
+        if: startsWith(matrix.os, 'macos-')
+        run: tar caf ddnssharp_macos.tar.gz ddnssharp_macos
+
+      - name: Upload DDNSSharp for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_linux.tar.gz
+          path: ./ddnssharp_linux.tar.gz
+
+      - name: Upload DDNSSharp for MacOS
+        if: startsWith(matrix.os, 'macos-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_macos.tar.gz
+          path: ./ddnssharp_macos.tar.gz
