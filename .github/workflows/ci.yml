@@ -44,6 +44,10 @@ jobs:
         if: startsWith(matrix.os, 'macos-')
         run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_macos --nologo
 
+      - name: Package for Windows
+        if: startsWith(matrix.os, 'windows-')
+        run: Compress-Archive -Path .\ddnssharp_windows 'ddnssharp_windows.zip'
+
       - name: Package for Linux
         if: startsWith(matrix.os, 'ubuntu-')
         run: tar caf ddnssharp_linux.tar.gz ddnssharp_linux
@@ -51,6 +55,13 @@ jobs:
       - name: Package for MacOS
         if: startsWith(matrix.os, 'macos-')
         run: tar caf ddnssharp_macos.tar.gz ddnssharp_macos
+
+      - name: Upload DDNSSharp for Windows
+        if: startsWith(matrix.os, 'windows-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_windows.zip
+          path: ./ddnssharp_windows.zip
 
       - name: Upload DDNSSharp for Linux
         if: startsWith(matrix.os, 'ubuntu-')
