@@ -3,7 +3,6 @@ using DDNSSharp.Configs;
 using DDNSSharp.Providers;
 using McMaster.Extensions.CommandLineUtils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using static DDNSSharp.Configs.DomainConfigHelper;
 
@@ -19,52 +18,47 @@ namespace DDNSSharp.Commands
 
         int OnExecute(CommandLineApplication app, IConsole console)
         {
-            var group = GetConfigs().GroupBy(c => c.Provider);
+            var configs = GetConfigs();
 
-            if (!group.Any())
+            if (!configs.Any())
             {
                 console.Out.WriteLine("No domain name is currently configured, please add domain name information via the `add` command.");
                 return 0;
             }
 
-            foreach (var domainConfigItems in group)
+            foreach (var item in configs)
             {
-                var provider = ProviderHelper.GetInstanceByName(domainConfigItems.Key, app);
-                provider.BeforeSync();
+                var provider = ProviderHelper.GetInstanceByName(item.Provider, app);
+                console.Out.WriteLine($"Current domain: {item.Domain}");
 
-                foreach (var item in domainConfigItems)
+                // 非强制刷新的情况下，只将 IP 地址变化的内容传给域名解析服务商
+                if (item.IsIPChanged() || Force)
                 {
-                    console.Out.WriteLine($"Current domain: {item.Domain}");
-
-                    // 非强制刷新的情况下，只将 IP 地址变化的内容传给域名解析服务商
-                    if (item.IsIPChanged() || Force)
+                    try
                     {
-                        try
+                        provider.Sync(new SyncContext
                         {
-                            provider.Sync(new SyncContext
-                            {
-                                DomainConfigItem = item
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            item.LastSyncStatus = SyncStatus.Failure;
-
-                            console.Error.WriteLine($"{item.Domain} update failed");
-                            console.Error.WriteLine(ex);
-                        }
+                            DomainConfigItem = item
+                        });
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        console.Out.WriteLine($"This domain names will not be synchronized because their IP addresses have not changed. Its current record is {item.LastSyncSuccessCurrentIP}. If there is a difference with the provider, please use `--force` to force synchronization.");
+                        item.LastSyncStatus = SyncStatus.Failure;
 
-                        item.LastSyncStatus = SyncStatus.Ignore;
+                        console.Error.WriteLine($"{item.Domain} update failed");
+                        console.Error.WriteLine(ex);
                     }
-
-                    UpdateItem(item);
-
-                    console.Out.WriteLine("--------------------");
                 }
+                else
+                {
+                    console.Out.WriteLine($"This domain names will not be synchronized because their IP addresses have not changed. Its current record is {item.LastSyncSuccessCurrentIP}. If there is a difference with the provider, please use `--force` to force synchronization.");
+
+                    item.LastSyncStatus = SyncStatus.Ignore;
+                }
+
+                UpdateItem(item);
+
+                console.Out.WriteLine("--------------------");
             }
 
             console.Out.WriteLine();

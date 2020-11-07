@@ -4,6 +4,7 @@ using Aliyun.Acs.Core.Exceptions;
 using Aliyun.Acs.Core.Profile;
 using DDNSSharp.Attributes;
 using DDNSSharp.Commands.SyncCommands;
+using DDNSSharp.Configs;
 using DDNSSharp.Helpers;
 using McMaster.Extensions.CommandLineUtils;
 using System;
@@ -20,30 +21,16 @@ namespace DDNSSharp.Providers.Aliyun
             App = app;
         }
 
-        public static new IEnumerable<ProviderOption> GetOptions()
+        public override void Sync(SyncContext context)
         {
-            yield return new ProviderOption("--id", "aliyun accessKeyId", CommandOptionType.SingleValue);
-            yield return new ProviderOption("--secret", "aliyun accessSecret", CommandOptionType.SingleValue);
-        }
-
-        /// <summary>
-        /// Aliyun Client
-        /// </summary>
-        public DefaultAcsClient Client { get; set; }
-
-        public override void BeforeSync()
-        {
-            var config = GetConfig<AliyunConfig>();
+            var config = DomainConfigHelper.GetProviderInfo<AliyunConfig>(context.DomainConfigItem);
 
             IClientProfile profile = DefaultProfile.GetProfile("cn-hangzhou", config.Id, config.Secret);
 
-            Client = new DefaultAcsClient(profile);
-            Client.SetConnectTimeoutInMilliSeconds(60000);
-            Client.SetReadTimeoutInMilliSeconds(60000);
-        }
+            var client = new DefaultAcsClient(profile);
+            client.SetConnectTimeoutInMilliSeconds(60000);
+            client.SetReadTimeoutInMilliSeconds(60000);
 
-        public override void Sync(SyncContext context)
-        {
             var item = context.DomainConfigItem;
 
             // 更新该记录的同步时间
@@ -70,7 +57,7 @@ namespace DDNSSharp.Providers.Aliyun
                     Type = domainTypeString
                 };
 
-                var subQueryResponse = Client.GetAcsResponse(subQueryRequest);
+                var subQueryResponse = client.GetAcsResponse(subQueryRequest);
                 if (subQueryResponse.TotalCount > 0)
                 {
                     Console.WriteLine("Is sub domain");
@@ -96,7 +83,7 @@ namespace DDNSSharp.Providers.Aliyun
                         Type = domainTypeString
                     };
 
-                    var rootQueryResponse = Client.GetAcsResponse(rootQueryRequest);
+                    var rootQueryResponse = client.GetAcsResponse(rootQueryRequest);
                     var result = rootQueryResponse.DomainRecords.SingleOrDefault(d => d.Type == domainTypeString);
                     recordId = result?.RecordId;
                     rr = result?.RR;
@@ -121,7 +108,7 @@ namespace DDNSSharp.Providers.Aliyun
                     _Value = address
                 };
 
-                var updateResponse = Client.GetAcsResponse(updateRequest);
+                var updateResponse = client.GetAcsResponse(updateRequest);
 
                 Console.WriteLine($"{item.Domain} updated successfully: {originalIP} -> {address}");
 

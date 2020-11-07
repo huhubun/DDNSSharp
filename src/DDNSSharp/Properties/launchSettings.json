@@ -2,7 +2,7 @@
   "profiles": {
     "DDNSSharp": {
       "commandName": "Project",
-      "commandLineArgs": "add   --interface fff  --secret sss --id xxid  --provider aliyun   a.com"
+      "commandLineArgs": "add --interface 以太网 --ali-secret sss --ali-access-key-id xxid  --provider aliyun   a.com"
     }
   }
 }

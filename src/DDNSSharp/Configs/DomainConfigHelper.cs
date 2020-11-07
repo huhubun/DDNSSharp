@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DDNSSharp.Providers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -52,6 +53,12 @@ namespace DDNSSharp.Configs
             file.Seek(0, SeekOrigin.Begin);
 
             return JsonSerializer.Deserialize<List<DomainConfigItem>>(bytes, DefaultOptions);
+        }
+
+        public static T GetProviderInfo<T>(DomainConfigItem configItem) where T : class, IProviderConfig
+        {
+            var json = JsonSerializer.Serialize(configItem.ProviderInfo);
+            return JsonSerializer.Deserialize<T>(json);
         }
 
         /// <summary>
