@@ -33,7 +33,7 @@ namespace DDNSSharp.HelpText
         {
             base.GenerateOptions(application, output, visibleOptions, firstColumnWidth);
 
-            if (application is CommandLineApplication<Commands.ProviderCommands.SetCommand>)
+            if (application is CommandLineApplication<Commands.AddCommand>)
             {
                 output.WriteLine();
                 output.WriteLine("[Note] Different providers have different options");

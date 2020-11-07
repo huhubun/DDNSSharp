@@ -1,7 +1,8 @@
 {
   "profiles": {
     "DDNSSharp": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "add   --interface fff  --secret sss --id xxid  --provider aliyun   a.com"
     }
   }
 }

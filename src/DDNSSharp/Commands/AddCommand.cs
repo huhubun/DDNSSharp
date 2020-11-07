@@ -7,10 +7,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.NetworkInformation;
 using static DDNSSharp.Commands.Helpers.AddCommandHelper;
+using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 using static DDNSSharp.Helpers.IPHelper;
+using static DDNSSharp.Providers.ProviderHelper;
 
 namespace DDNSSharp.Commands
 {
+    [Command(UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.CollectAndContinue)]
     class AddCommand
     {
         /// <summary>
@@ -43,6 +46,35 @@ namespace DDNSSharp.Commands
                 console.Error.WriteLine($"Provider '{Provider}' is not supported.");
                 return 1;
             }
+
+
+
+            ProviderBase provider;
+
+            try
+            {
+                provider = GetInstanceByName(Provider, app);
+            }
+            catch (NotSupportedException ex)
+            {
+                console.Error.WriteLine(ex.Message);
+
+                console.Out.WriteLine();
+
+                WriteSupportedProviderListToConsole(console.Out);
+
+                return 0;
+            }
+
+            // 加载 Provider 的 Options
+            provider.SetOptionsToApp();
+
+            // 应用 Options，经过这一步，Option 对应的属性才能获取到 Option 的值
+            app.Parse(app.RemainingArguments.ToArray());
+
+
+
+            return 0;
 
             var newConfigItem = new DomainConfigItem
             {
