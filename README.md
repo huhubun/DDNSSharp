@@ -5,11 +5,27 @@ A cross-platform DDNS tool.
 
 ## 安装
 - 需要 [.NET Core 3.1 Runtime](https://dotnet.microsoft.com/download/dotnet-core)
-- [下载](https://github.com/huhubun/DDNSSharp/releases)
+- [下载 DDNSSharp](https://github.com/huhubun/DDNSSharp/releases)
 
-## Domain management 域名管理
+## 命令
 
-想要让域名解析跟随本机的 IP 地址变化而变化，需要将域名添加到 DDNSSharp 中。
+对于 Windows 平台，可以通过可执行文件来使用：
+
+```bash
+ddnssharp.exe [options]
+```
+
+对于 Linux 平台，确保 `ddnssharp` 文件具有可执行权限：
+
+```bash
+ddnssharp [options]
+```
+
+macOS 受到公证[<sup>1</sup>](https://developer.apple.com/cn/documentation/xcode/notarizing_macos_software_before_distribution/) <sup>[2](https://docs.microsoft.com/zh-cn/dotnet/core/whats-new/dotnet-core-3-1#macos-apphost-and-notarization)</sup>的影响，不提供 macOS 的 DDNSSharp 可执行文件。但不论 Windows 平台、Linux 平台还是 macOS 平台，都可以通过 `dotnet` 命令使用 DDNSSharp：
+
+```bash
+dotnet DDNSSharp.dll [options]
+```
 
 ### list
 
@@ -19,10 +35,10 @@ A cross-platform DDNS tool.
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll list
+$ ddnssharp list
 
-ip.bun.plus   | AAAA | aliyun 
-ipv6.bun.plus | AAAA | aliyun
+ip.bun.plus   | AAAA | eth0 | aliyun | Success | 12/11/2020 00:19:29 
+ipv6.bun.plus | AAAA | eth0 | aliyun | Success | 12/11/2020 00:19:26 
 ```
 
 ### add
@@ -33,10 +49,13 @@ ipv6.bun.plus | AAAA | aliyun
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll add ip.bun.plus --provider aliyun --type AAAA --interface eth0
+$ ddnssharp add -t AAAA -i eth0 -p aliyun --ali-access-key-id YOUR_ACCESS_KEY_ID --ali-secret YOUR_SECRET ipv6.bun.plus
 
 Added successfully!
 ```
+
+#### Note
+由于不同域名解析提供商所需的参数不同，请通过 `ddnssharp add --help` 命令来查看每个提供商使用的参数列表。
 
 ### delete
 
@@ -46,7 +65,7 @@ Added successfully!
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll delete ipv6.bun.plus
+$ ddnssharp delete ipv6.bun.plus
 
 Please confirm that you want to delete this record:
   Domain: ipv6.bun.plus
@@ -64,12 +83,13 @@ Deleted successfully!
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll ip
+$ ddnssharp ip
 
-Interface name: eth0
+Interface: eth0
 IPv4 | 10.0.0.20
 IPv6 | 2408:1111:2222:3333:4444:5555:6666:7777
-Interface name: wlan0
+
+Interface: wlan0
 IPv4 | 10.0.0.46
 IPv6 | 2408:1111:2222:3333:4444:5555:6666:8888
 ```
@@ -82,7 +102,7 @@ IPv6 | 2408:1111:2222:3333:4444:5555:6666:8888
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll sync
+$ ddnssharp sync
 
 Current domain: ipv6.bun.plus
 Try use sub domain api to search. SubDomain = ipv6.bun.plus, Type = AAAA
@@ -92,84 +112,15 @@ Interface eth0 InterNetworkV6 address is 2408:1111:2222:3333:4444:5555:6666:7777
 ipv6.bun.plus success
 ```
 
-## Provider management 域名解析提供商管理
-
-DDNSSharp 通过域名解析提供商的 API 来修改解析记录，通过 `provider` 下的命令来设置访问 API 所需的必要信息。**请确保您提供的信息拥有操作域名解析记录的权限。**
-
-### 支持列表
-
-下列域名解析提供商已被 DDNSSharp 支持：
-
-- 阿里云
-- Cloudflare *(coming soon)*
-
-### 查看支持的和已设置的提供商信息
+### provider
 
 `ddnssharp provider`
 
-#### Sample
-```
-$ dotnet DDNSSharp.dll provider
-
-List of supported providers:
-  cloudflare
-  aliyun
-
-List of already configured providers:
-  aliyun
-```
-
-### set
-
-`ddnssharp provider set`
-
-设置域名解析提供商信息。
+查看支持的域名解析提供商名称
 
 #### Sample
 ```
-$ dotnet DDNSSharp.dll provider set aliyun --id oooo --secret xxxx
+$ ddnssharp provider
 
-Now start to set up 'aliyun' provider.
-Saved.
-```
-
-#### Note
-由于不同域名解析提供商所需的参数不同，请通过 `provider set --help` 命令来查看每个提供商使用的参数列表。
-
-```
-$ dotnet DDNSSharp.dll provider set --help
-
-Usage: ddnssharp provider set [options] <Name> [[--] <arg>...]
-
-Arguments:
-  Name          Provider name
-
-List of supported providers:
-  cloudflare
-  aliyun
-
-Options:
-  -?|-h|--help  Show help information
-
-[Note] Different providers have different options
-Provider 'cloudflare' supports:
-  --id        Cloudflare Account_ID
-  --token     Cloudflare Token
-Provider 'aliyun' supports:
-  --id        aliyun accessKeyId
-  --secret    aliyun accessSecret
-```
-
-### delete
-
-`ddnssharp provider delete`
-
-移除域名解析提供商信息。
-
-#### Sample
-```
-$ dotnet DDNSSharp.dll provider delete aliyun
-
-Now start to delete the configuration of 'aliyun' provider.
-Deleted.
+aliyun
 ```
