@@ -1,21 +1,21 @@
-﻿using DDNSSharp.Commands.ProviderCommands;
+﻿using DDNSSharp.Providers;
 using McMaster.Extensions.CommandLineUtils;
-using static DDNSSharp.Commands.Helpers.ProviderCommandHelper;
 
 namespace DDNSSharp.Commands
 {
-    [Subcommand(
-        typeof(SetCommand),
-        typeof(ProviderCommands.DeleteCommand)
-    )]
+    [Command(Description = "查看支持的域名解析提供商名称")]
     class ProviderCommand
     {
         int OnExecute(CommandLineApplication app, IConsole console)
         {
-            WriteSupportedProviderListToConsole(console.Out, endWithNewLine: true);
-            WriteAlreadyConfiguredProviderListToConsole(console.Out, endWithNewLine: true);
+            var providers = ProviderHelper.GetProviderNames();
 
-            return 1;
+            foreach (var provider in providers)
+            {
+                console.Out.WriteLine(provider);
+            }
+
+            return 0;
         }
     }
 }

@@ -6,13 +6,14 @@ using static DDNSSharp.Helpers.IPHelper;
 
 namespace DDNSSharp.Commands
 {
+    [Command(Description = "查看本机 IP 信息")]
     class IpCommand
     {
         int OnExecute(CommandLineApplication app, IConsole console)
         {
             foreach (var iface in GetAvailableNetworkInterfaces())
             {
-                console.Out.WriteLine($"Interface name: {iface.Name}");
+                console.Out.WriteLine($"Interface: {iface.Name}");
                 foreach (var ipInfo in iface.GetAvailableIPAddress())
                 {
                     string ipTypeDisplay;
@@ -32,6 +33,8 @@ namespace DDNSSharp.Commands
 
                     console.Out.WriteLine($"{ipTypeDisplay} | {ipInfo.Address}");
                 }
+
+                console.Out.WriteLine();
             }
 
             return 0;

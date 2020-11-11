@@ -1,5 +1,5 @@
 ﻿using DDNSSharp.Commands;
-using DDNSSharp.HelpText;
+using DDNSSharp.Commands.AddCommands;
 using McMaster.Extensions.CommandLineUtils;
 using System.Reflection;
 
@@ -9,7 +9,6 @@ namespace DDNSSharp
     [VersionOptionFromMember("--version", MemberName = nameof(GetVersion))]
     [Subcommand(
         typeof(ListCommand),
-        typeof(AddCommand),
         typeof(DeleteCommand),
         typeof(SyncCommand),
         typeof(IpCommand),
@@ -21,8 +20,10 @@ namespace DDNSSharp
         public static int Main(string[] args)
         {
             var app = new CommandLineApplication<Program>();
-            app.HelpTextGenerator = new DDNSSharpHelpTextGenerator();
             app.Conventions.UseDefaultConventions();
+
+            // 由于需要动态加载 Provider 的 Options，所以 Add 命令通过 Builder API 创建
+            app.Command<AddCommandModel>("add", AddCommand.Command);
 
             return app.Execute(args);
         }

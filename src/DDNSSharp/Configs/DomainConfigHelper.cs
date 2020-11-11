@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DDNSSharp.Providers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace DDNSSharp.Configs
     public static class DomainConfigHelper
     {
         private const string DOMAIN_CONFIG_FILE_NAME = "domain.json";
+
+        public static string ConfigFilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DOMAIN_CONFIG_FILE_NAME);
 
         /// <summary>
         /// 应使用 <see cref="DefaultOptions"/> 属性
@@ -41,7 +44,7 @@ namespace DDNSSharp.Configs
         /// <returns>配置的内容。注意：如果配置文件不存在或没有内容，将返回长度为 0 的 <see cref="List"/> 而非 null。</returns>
         public static List<DomainConfigItem> GetConfigs()
         {
-            using var file = File.Open(DOMAIN_CONFIG_FILE_NAME, FileMode.OpenOrCreate, FileAccess.Read);
+            using var file = File.Open(ConfigFilePath, FileMode.OpenOrCreate, FileAccess.Read);
             if (file.Length == 0)
             {
                 return new List<DomainConfigItem>();
@@ -52,6 +55,12 @@ namespace DDNSSharp.Configs
             file.Seek(0, SeekOrigin.Begin);
 
             return JsonSerializer.Deserialize<List<DomainConfigItem>>(bytes, DefaultOptions);
+        }
+
+        public static T GetProviderInfo<T>(DomainConfigItem configItem) where T : class, IProviderConfig
+        {
+            var json = JsonSerializer.Serialize(configItem.ProviderInfo);
+            return JsonSerializer.Deserialize<T>(json);
         }
 
         /// <summary>
@@ -71,10 +80,15 @@ namespace DDNSSharp.Configs
 
         public static void AddItem(DomainConfigItem item)
         {
+            // Directory.GetCurrentDirectory() 不是
+            // Environment.CurrentDirectory 不是
+
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+
             var configs = GetConfigs();
             configs.Add(item);
 
-            File.WriteAllBytes(DOMAIN_CONFIG_FILE_NAME, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
+            File.WriteAllBytes(ConfigFilePath, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
         }
 
         public static void UpdateItem(DomainConfigItem item)
@@ -89,7 +103,7 @@ namespace DDNSSharp.Configs
             }
 
             configs[i] = item;
-            File.WriteAllBytes(DOMAIN_CONFIG_FILE_NAME, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
+            File.WriteAllBytes(ConfigFilePath, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
         }
 
         public static int DeleteItem(DomainConfigItem item)
@@ -105,7 +119,7 @@ namespace DDNSSharp.Configs
 
             if (deletedCount > 0)
             {
-                File.WriteAllBytes(DOMAIN_CONFIG_FILE_NAME, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
+                File.WriteAllBytes(ConfigFilePath, JsonSerializer.SerializeToUtf8Bytes(configs, DefaultOptions));
             }
 
             return deletedCount;

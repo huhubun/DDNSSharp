@@ -8,6 +8,7 @@ using System.Text;
 
 namespace DDNSSharp.Commands
 {
+    [Command(Description = "删除域名信息")]
     class DeleteCommand
     {
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using DDNSSharp.Commands.SyncCommands;
 using DDNSSharp.Enums;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
@@ -31,6 +32,11 @@ namespace DDNSSharp.Configs
         /// DNS 提供商
         /// </summary>
         public string Provider { get; set; }
+
+        /// <summary>
+        /// 访问 DNS 提供商 API 时需要用到的参数信息
+        /// </summary>
+        public Dictionary<string, string> ProviderInfo { get; set; }
 
         /// <summary>
         /// 该域名的 IP 地址来源于哪个网卡
