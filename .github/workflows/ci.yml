@@ -84,6 +84,7 @@ jobs:
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
+        shell: pwsh
         run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip'
 
       - name: Upload DDNSSharp for Windows
@@ -114,6 +115,7 @@ jobs:
 
       - name: Package for macOS
         if: startsWith(matrix.os, 'macos-')
+        shell: pwsh
         run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_macos 'ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip'
 
       - name: Upload DDNSSharp for macOS
