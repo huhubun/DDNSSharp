@@ -80,11 +80,6 @@ namespace DDNSSharp.Configs
 
         public static void AddItem(DomainConfigItem item)
         {
-            // Directory.GetCurrentDirectory() 不是
-            // Environment.CurrentDirectory 不是
-
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-
             var configs = GetConfigs();
             configs.Add(item);
 
