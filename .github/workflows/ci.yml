@@ -1,11 +1,14 @@
 name: DDNSSharp-CI
 
-on: [push, pull_request]
+on: [push]
 
 env:
   DOTNET_SDK_VERSION: 3.1
   NET_CORE_VERSION: netcoreapp3.1
-
+  REGEX_REF_VERSION: .*\/v(?<version>\d+\.\d+\.\d+)$
+  REGEX_XML_VERSION: <Version>(?<version>\d+.\d+.\d+)</Version>
+  GET_RELEASE_BY_TAG_NAME_URL: https://api.github.com/repos/huhubun/DDNSSharp/releases/tags
+  COMPARE_URL: https://github.com/huhubun/DDNSSharp/compare
 jobs:
   main:
     strategy:
@@ -17,6 +20,49 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get application version
+        shell: pwsh
+        run: |
+          $ref_version, $csproj_version, $application_version
+
+          if("${{ github.ref }}" -match "${{ env.REGEX_REF_VERSION }}")
+          {
+              $ref_version = $matches.version
+              $application_version = $ref_version
+
+              echo "IS_PRE_RELEASE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              echo "Find version information in 'github.ref': '${{ github.ref }}'"
+          }
+          else 
+          {
+              echo "IS_PRE_RELEASE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              echo "The version information is not found in 'github.ref': '${{ github.ref }}', try to get it from the '.csproj' file."
+          }
+
+          $versionXmlInCsproj = Select-String -Path ".\src\DDNSSharp\DDNSSharp.csproj" -Pattern "${{ env.REGEX_XML_VERSION }}" -Raw
+          if($versionXmlInCsproj -match "${{ env.REGEX_XML_VERSION }}")
+          {
+              $csproj_version = $matches.version
+              $application_version = $csproj_version
+
+              echo "Find version information in '.csproj' file."
+          }
+          else
+          {
+            throw "No version information was found in 'github.ref' and '.csproj' files."
+          }
+
+          if(($ref_version -ne $null) -and ($csproj_version -ne $null) -and ($ref_version -ne $csproj_version))
+          {
+            throw "The version number in 'github.ref'($ref_version) does not match the one in the '.csproj' file($csproj_version)."
+          }
+
+          echo "APPLICATION_VERSION=$application_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          Get-Content $env:GITHUB_ENV
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -34,45 +80,138 @@ jobs:
 
       - name: Publish for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_windows --nologo
-
-      - name: Publish for Linux
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_linux --nologo
-
-      - name: Publish for MacOS
-        if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_macos --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows -c Release --no-self-contained --nologo
 
       - name: Package for Windows
         if: startsWith(matrix.os, 'windows-')
-        run: Compress-Archive -Path .\ddnssharp_windows 'ddnssharp_windows.zip'
-
-      - name: Package for Linux
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: tar caf ddnssharp_linux.tar.gz ddnssharp_linux
-
-      - name: Package for MacOS
-        if: startsWith(matrix.os, 'macos-')
-        run: tar caf ddnssharp_macos.tar.gz ddnssharp_macos
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip'
 
       - name: Upload DDNSSharp for Windows
         if: startsWith(matrix.os, 'windows-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_windows.zip
-          path: ./ddnssharp_windows.zip
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
+
+      - name: Publish for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux -c Release --no-self-contained --nologo
+
+      - name: Package for Linux
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: tar caf ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz ddnssharp_${{ env.APPLICATION_VERSION }}_linux
 
       - name: Upload DDNSSharp for Linux
         if: startsWith(matrix.os, 'ubuntu-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_linux.tar.gz
-          path: ./ddnssharp_linux.tar.gz
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
 
-      - name: Upload DDNSSharp for MacOS
+      - name: Publish for macOS
+        if: startsWith(matrix.os, 'macos-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos -c Release --no-self-contained --nologo
+
+      - name: Package for macOS
+        if: startsWith(matrix.os, 'macos-')
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_macos 'ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip'
+
+      - name: Upload DDNSSharp for macOS
         if: startsWith(matrix.os, 'macos-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_macos.tar.gz
-          path: ./ddnssharp_macos.tar.gz
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
+
+      - name: Generate changelog
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        shell: pwsh
+        run: |
+          $tags = git tag -l v*
+
+          $current_tag_name = "v${{ env.APPLICATION_VERSION }}"
+          $current_tag_index = $tags.IndexOf($current_tag_name)
+          $git_logs_range = $current_tag_name
+
+          if($current_tag_index -gt 0)
+          {
+            $last_tag_index = $current_tag_index - 1
+            $last_tag_name = $tags[$last_tag_index]
+            $git_logs_range = "$last_tag_name..$current_tag_name"
+          }
+
+          Write-Output "git_logs_range = $git_logs_range"
+
+          Write-Output "# DDNSSharp v${{ env.APPLICATION_VERSION }}" | Out-File -FilePath changelog.md -Encoding utf8
+
+          if($current_tag_index -gt 0)
+          {
+            Write-Output "Compare with [$last_tag_name](${{ env.COMPARE_URL }}/$git_logs_range)" | Out-File -FilePath changelog.md -Encoding utf8
+          }
+
+          $logs = git log --pretty="- [%h](https://github.com/huhubun/DDNSSharp/commit/%H) %s" $git_logs_range 
+
+          Write-Output "## Features" | Out-File -FilePath changelog.md -Encoding utf8 -Append
+          $logs | Where-Object {$_ -match "\bfeat\b:"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
+
+          Write-Output "## Bug Fixes" | Out-File -FilePath changelog.md -Encoding utf8 -Append
+          $logs | Where-Object {$_ -match "\bfix\b:"} | Out-File -FilePath changelog.md -Encoding utf8 -Append
+
+          cat changelog.md
+
+      # 谁来创建 release 并不重要，如果 release 已经存在，那就跳过它
+      - name: Create GitHub release by ${{ matrix.os }}
+        continue-on-error: true
+        id: github_release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: v${{ env.APPLICATION_VERSION }} 🎉
+          body_path: changelog.md
+          prerelease: ${{ env.IS_PRE_RELEASE }}
+
+      - name: Get release upload url
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        shell: pwsh
+        run: |
+          $response = Invoke-WebRequest -URI ${{ env.GET_RELEASE_BY_TAG_NAME_URL }}/v${{ env.APPLICATION_VERSION }} -Authentication OAuth -Token (ConvertTo-SecureString "${{ secrets.GITHUB_TOKEN }}" -AsPlainText -Force) | ConvertFrom-Json
+          $upload_url = $response.upload_url
+          echo "UPLOAD_URL=$upload_url" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload DDNSSharp for Windows to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # 因为不确定 release 在哪个任务里被创建，所以不能使用 ${{ steps.github_release.outputs.upload_url }}
+          # 改为因而直接硬编码 URL，下同
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_content_type: application/zip
+
+      - name: Upload DDNSSharp for Linux to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload DDNSSharp for macOS to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'macos-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
+          asset_content_type: application/zip
