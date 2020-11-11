@@ -4,6 +4,7 @@ using static DDNSSharp.Commands.Helpers.ListCommandHelper;
 
 namespace DDNSSharp.Commands
 {
+    [Command(Description = "查看已配置的域名信息")]
     class ListCommand
     {
         int OnExecute(CommandLineApplication app, IConsole console)

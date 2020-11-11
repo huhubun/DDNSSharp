@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace DDNSSharp
 {
-    public static class AddCommand
+    static class AddCommand
     {
         public static Action<CommandLineApplication<AddCommandModel>> Command => (addCmd) =>
         {
-            addCmd.Description = "this is add command";
+            addCmd.Description = "添加域名信息";
             addCmd.UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.Throw;
 
             // 设置支持的 Provider 名称

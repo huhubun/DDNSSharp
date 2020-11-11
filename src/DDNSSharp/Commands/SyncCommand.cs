@@ -8,6 +8,7 @@ using static DDNSSharp.Configs.DomainConfigHelper;
 
 namespace DDNSSharp.Commands
 {
+    [Command(Description = "执行同步，将本机 IP 信息更新到域名解析供应商")]
     class SyncCommand
     {
         /// <summary>
