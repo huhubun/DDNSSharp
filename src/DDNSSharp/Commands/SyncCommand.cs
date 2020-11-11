@@ -8,7 +8,7 @@ using static DDNSSharp.Configs.DomainConfigHelper;
 
 namespace DDNSSharp.Commands
 {
-    [Command(Description = "执行同步，将本机 IP 信息更新到域名解析供应商")]
+    [Command(Description = "执行同步，将本机 IP 信息更新到域名解析提供商")]
     class SyncCommand
     {
         /// <summary>
@@ -32,7 +32,7 @@ namespace DDNSSharp.Commands
                 var provider = ProviderHelper.GetInstanceByName(item.Provider, app);
                 console.Out.WriteLine($"Current domain: {item.Domain}");
 
-                // 非强制刷新的情况下，只将 IP 地址变化的内容传给域名解析服务商
+                // 非强制刷新的情况下，只将 IP 地址变化的内容传给域名解析提供商
                 if (item.IsIPChanged() || Force)
                 {
                     try
