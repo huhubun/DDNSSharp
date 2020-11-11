@@ -38,7 +38,6 @@ namespace DDNSSharp.Configs
             }
         }
 
-
         /// <summary>
         /// 获取域名配置内容。
         /// </summary>
