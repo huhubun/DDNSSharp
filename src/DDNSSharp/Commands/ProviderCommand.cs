@@ -10,9 +10,11 @@ namespace DDNSSharp.Commands
         {
             var providers = ProviderHelper.GetProviderNames();
 
+            console.WriteLine("Currently supported providers:");
+
             foreach (var provider in providers)
             {
-                console.Out.WriteLine(provider);
+                console.WriteLine($"  {provider}");
             }
 
             return 0;
