@@ -33,9 +33,6 @@ namespace DDNSSharp.Providers.Aliyun
 
             var item = context.DomainConfigItem;
 
-            // 更新该记录的同步时间
-            item.LastSyncTime = DateTime.Now;
-
             // 更新解析记录使用的请求，为了便于 catch 时获取相关数据，所以定义在 try 块外面
             UpdateDomainRecordRequest updateRequest = null;
 
