@@ -29,6 +29,9 @@ namespace DDNSSharp.Commands
 
             foreach (var item in configs)
             {
+                // 更新该记录的同步时间
+                item.LastSyncTime = DateTime.Now;
+
                 var provider = ProviderHelper.GetInstanceByName(item.Provider, app);
                 console.Out.WriteLine($"Current domain: {item.Domain}");
 
