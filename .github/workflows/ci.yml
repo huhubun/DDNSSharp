@@ -352,8 +352,9 @@ jobs:
           asset_content_type: application/zip
 
       - name: Update official website
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && steps.create_release.outputs != null }}
+        # steps.create_release.outputs.id 不为 null 说明 release 是这个 job 创建的，那么也由它来通知 ddnssharp.bun.dev-source 项目进行更新
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && steps.create_release.outputs.id != null }}
         shell: pwsh
         run: |
-          $body = @{ ref = "master" }
+          $body = @{ ref = "master" } |  ConvertTo-Json
           $response = Invoke-WebRequest -URI 'https://api.github.com/repos/huhubun/ddnssharp.bun.dev-source/actions/workflows/deploy.yml/dispatches' -Method 'POST' -Authentication OAuth -Token (ConvertTo-SecureString "${{ secrets.DISPATCH_ACTION_TOKEN }}" -AsPlainText -Force) -Body $body
