@@ -12,6 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- 修正包降级错误 https://docs.microsoft.com/zh-cn/nuget/reference/errors-and-warnings/nu1605#example-2 -->
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="3.0.0" PrivateAssets="all" />
     <PackageReference Include="aliyun-net-sdk-alidns" Version="2.0.19" />
     <PackageReference Include="ConsoleTables" Version="2.4.2" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
