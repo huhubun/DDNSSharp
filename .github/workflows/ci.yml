@@ -78,52 +78,130 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore --nologo
 
-      - name: Publish for Windows
+      - name: Publish for windows_x86
         if: startsWith(matrix.os, 'windows-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows -c Release --no-self-contained --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86 -c Release --runtime win-x86 --no-self-contained --nologo
 
-      - name: Package for Windows
+      - name: Package for windows_x86
         if: startsWith(matrix.os, 'windows-')
         shell: pwsh
-        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip'
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86.zip'
 
-      - name: Upload DDNSSharp for Windows
+      - name: Upload DDNSSharp for windows_x86
         if: startsWith(matrix.os, 'windows-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows
-          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86.zip
 
-      - name: Publish for Linux
+      - name: Publish for windows_x64
+        if: startsWith(matrix.os, 'windows-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64 -c Release --runtime win-x64 --no-self-contained --nologo
+
+      - name: Package for windows_x64
+        if: startsWith(matrix.os, 'windows-')
+        shell: pwsh
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64.zip'
+
+      - name: Upload DDNSSharp for windows_x64
+        if: startsWith(matrix.os, 'windows-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64.zip
+
+      - name: Publish for windows_arm
+        if: startsWith(matrix.os, 'windows-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm -c Release --runtime win-arm --no-self-contained --nologo
+
+      - name: Package for windows_arm
+        if: startsWith(matrix.os, 'windows-')
+        shell: pwsh
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm.zip'
+
+      - name: Upload DDNSSharp for windows_arm
+        if: startsWith(matrix.os, 'windows-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm.zip
+
+      - name: Publish for windows_arm64
+        if: startsWith(matrix.os, 'windows-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64 -c Release --runtime win-arm64 --no-self-contained --nologo
+
+      - name: Package for windows_arm64
+        if: startsWith(matrix.os, 'windows-')
+        shell: pwsh
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64 'ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64.zip'
+
+      - name: Upload DDNSSharp for windows_arm64
+        if: startsWith(matrix.os, 'windows-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64.zip
+
+      - name: Publish for linux_x64
         if: startsWith(matrix.os, 'ubuntu-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux -c Release --no-self-contained --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64 -c Release --runtime linux-x64 --no-self-contained --nologo
 
-      - name: Package for Linux
+      - name: Package for linux_x64
         if: startsWith(matrix.os, 'ubuntu-')
-        run: tar caf ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz ddnssharp_${{ env.APPLICATION_VERSION }}_linux
+        run: tar caf ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64.tar.gz ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64
 
-      - name: Upload DDNSSharp for Linux
+      - name: Upload DDNSSharp for linux_x64
         if: startsWith(matrix.os, 'ubuntu-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux
-          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64.tar.gz
 
-      - name: Publish for macOS
+      - name: Publish for linux_arm
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm -c Release --runtime linux-arm --no-self-contained --nologo
+
+      - name: Package for linux_arm
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: tar caf ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm.tar.gz ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm
+
+      - name: Upload DDNSSharp for linux_arm
+        if: startsWith(matrix.os, 'ubuntu-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm.tar.gz
+
+      - name: Publish for linux_arm64
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64 -c Release --runtime linux-arm64 --no-self-contained --nologo
+
+      - name: Package for linux_arm64
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: tar caf ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64.tar.gz ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64
+
+      - name: Upload DDNSSharp for linux_arm64
+        if: startsWith(matrix.os, 'ubuntu-')
+        uses: actions/upload-artifact@v2
+        with:
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64.tar.gz
+
+      - name: Publish for macos_x64
         if: startsWith(matrix.os, 'macos-')
-        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos -c Release --no-self-contained --nologo
+        run: dotnet publish -f ${{ env.NET_CORE_VERSION }} -o ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64 -c Release --runtime osx-x64 --no-self-contained --nologo
 
-      - name: Package for macOS
+      - name: Package for macos_x64
         if: startsWith(matrix.os, 'macos-')
         shell: pwsh
-        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_macos 'ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip'
+        run: Compress-Archive -Path .\ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64 'ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64.zip'
 
-      - name: Upload DDNSSharp for macOS
+      - name: Upload DDNSSharp for macos_x64
         if: startsWith(matrix.os, 'macos-')
         uses: actions/upload-artifact@v2
         with:
-          name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos
-          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
+          name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64
+          path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64.zip
 
       - name: Generate changelog
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
@@ -183,37 +261,92 @@ jobs:
           $upload_url = $response.upload_url
           echo "UPLOAD_URL=$upload_url" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Upload DDNSSharp for Windows to release
+      - name: Upload DDNSSharp for windows_x86 to release
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # 因为不确定 release 在哪个任务里被创建，所以不能使用 ${{ steps.github_release.outputs.upload_url }}
-          # 改为因而直接硬编码 URL，下同
+          # 改为直接硬编码 URL，下同
           upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
-          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows.zip
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x86.zip
           asset_content_type: application/zip
 
-      - name: Upload DDNSSharp for Linux to release
+      - name: Upload DDNSSharp for windows_x64 to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_x64.zip
+          asset_content_type: application/zip
+
+      - name: Upload DDNSSharp for windows_arm to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm.zip
+          asset_content_type: application/zip
+
+      - name: Upload DDNSSharp for windows_arm64 to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'windows-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_windows_arm64.zip
+          asset_content_type: application/zip
+
+      - name: Upload DDNSSharp for linux_x64 to release
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
-          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux.tar.gz
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64.tar.gz
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_x64.tar.gz
           asset_content_type: application/gzip
 
-      - name: Upload DDNSSharp for macOS to release
+      - name: Upload DDNSSharp for linux_arm to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm.tar.gz
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload DDNSSharp for linux_arm64 to release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'ubuntu-') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64.tar.gz
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_linux_arm64.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload DDNSSharp for macos_x64 to release
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && startsWith(matrix.os, 'macos-') }}
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ env.UPLOAD_URL }}
-          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
-          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos.zip
+          asset_path: ./ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64.zip
+          asset_name: ddnssharp_${{ env.APPLICATION_VERSION }}_macos_x64.zip
           asset_content_type: application/zip
